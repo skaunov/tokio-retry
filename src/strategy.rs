@@ -32,13 +32,13 @@ impl ExponentialBackoff {
     /// For example, using a factor of `1000` will make each delay in units of seconds.
     ///
     /// Default factor is `1`.
-    pub fn factor(mut self, factor: u64) -> Self {
+    pub const fn factor(mut self, factor: u64) -> Self {
         self.factor = factor;
         self
     }
 
     /// Apply a maximum delay. No retry delay will be longer than this `Duration`.
-    pub fn max_delay(mut self, duration: Duration) -> Self {
+    pub const fn max_delay(mut self, duration: Duration) -> Self {
         self.max_delay = Some(duration);
         self
     }
@@ -105,13 +105,13 @@ impl FibonacciBackoff {
     /// For example, using a factor of `1000` will make each delay in units of seconds.
     ///
     /// Default factor is `1`.
-    pub fn factor(mut self, factor: u64) -> Self {
+    pub const fn factor(mut self, factor: u64) -> Self {
         self.factor = factor;
         self
     }
 
     /// Apply a maximum delay. No retry delay will be longer than this `Duration`.
-    pub fn max_delay(mut self, duration: Duration) -> Self {
+    pub const fn max_delay(mut self, duration: Duration) -> Self {
         self.max_delay = Some(duration);
         self
     }
@@ -155,7 +155,7 @@ pub struct FixedInterval {
 
 impl FixedInterval {
     /// Constructs a new fixed interval strategy.
-    pub fn new(duration: Duration) -> Self {
+    pub const fn new(duration: Duration) -> Self {
         Self { duration }
     }
 
