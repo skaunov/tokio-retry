@@ -92,7 +92,7 @@ where
             retry_if: RetryIf::start(strategy, action, (|_| true) as fn(&A::Error) -> bool),
         }
     }
-    
+
     #[deprecated = "superceeded by `start` to avoid confusion with usual Tokio terminology"]
     pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Self {
         Self::start(strategy, action)
@@ -113,7 +113,7 @@ where
 }
 
 pin_project! {
-    /// Future that drives multiple attempts at an action via a retry strategy. Retries are only attempted 
+    /// Future that drives multiple attempts at an action via a retry strategy. Retries are only attempted
     /// if the `Error` returned by the future satisfies a given condition.
     pub struct RetryIf<I, A, C>
     where
@@ -155,11 +155,9 @@ where
         strategy: T,
         action: A,
         condition: C,
-    ) -> Self {Self::start(
-        strategy,
-        action,
-        condition,
-    )}
+    ) -> Self {
+        Self::start(strategy, action, condition)
+    }
 
     fn attempt(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<A::Item, A::Error>> {
         let future = {
