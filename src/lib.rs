@@ -18,7 +18,7 @@
 //!     .map(jitter) // add jitter to delays
 //!     .take(3);    // limit to 3 retries
 //!
-//! let result = Retry::spawn(retry_strategy, action).await?;
+//! let result = Retry::start(retry_strategy, action).await?;
 //! # Ok(())
 //! # }
 //! ```
@@ -87,10 +87,15 @@ where
     I: Iterator<Item = Duration>,
     A: Action,
 {
-    pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Self {
+    pub fn start<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Self {
         Self {
-            retry_if: RetryIf::spawn(strategy, action, (|_| true) as fn(&A::Error) -> bool),
+            retry_if: RetryIf::start(strategy, action, (|_| true) as fn(&A::Error) -> bool),
         }
+    }
+    
+    #[deprecated = "superceeded by `start` to avoid confusion with usual Tokio terminology"]
+    pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(strategy: T, action: A) -> Self {
+        Self::start(strategy, action)
     }
 }
 
@@ -108,8 +113,8 @@ where
 }
 
 pin_project! {
-    /// Future that drives multiple attempts at an action via a retry strategy. Retries are only attempted if
-    /// the `Error` returned by the future satisfies a given condition.
+    /// Future that drives multiple attempts at an action via a retry strategy. Retries are only attempted 
+    /// if the `Error` returned by the future satisfies a given condition.
     pub struct RetryIf<I, A, C>
     where
         I: Iterator<Item = Duration>,
@@ -130,7 +135,7 @@ where
     A: Action,
     C: Condition<A::Error>,
 {
-    pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(
+    pub fn start<T: IntoIterator<IntoIter = I, Item = Duration>>(
         strategy: T,
         mut action: A,
         condition: C,
@@ -144,6 +149,17 @@ where
             condition,
         }
     }
+
+    #[deprecated = "superceeded by `start` to avoid confusion with usual Tokio terminology"]
+    pub fn spawn<T: IntoIterator<IntoIter = I, Item = Duration>>(
+        strategy: T,
+        action: A,
+        condition: C,
+    ) -> Self {Self::start(
+        strategy,
+        action,
+        condition,
+    )}
 
     fn attempt(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<A::Item, A::Error>> {
         let future = {
